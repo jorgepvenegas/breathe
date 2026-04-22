@@ -140,7 +140,8 @@ All request and response bodies are validated with Zod schemas from `packages/ty
 | `/` | Landing page with login/signup CTAs |
 | `/dashboard` | Today's stats, quick-start presets, custom patterns, recent sessions |
 | `/breathe/:patternId` | Full-screen guided breathing session |
-| `/patterns` | Manage custom patterns (create / edit / delete / preview) |
+| `/patterns` | List custom patterns (create / delete / preview) |
+| `/patterns/new` | Create a new custom pattern |
 | `/history` | Session history list + stats chart |
 | `/login` | Login page (email/password + Google OAuth) |
 | `/register` | Registration page |
