@@ -48,6 +48,7 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !auth.user) {
     return { name: "login" };
   }
+  return true;
 });
 
 export default router;

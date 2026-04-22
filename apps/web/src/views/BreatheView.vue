@@ -8,24 +8,24 @@
 
     <!-- Circle -->
     <BreathCircle
-      :phase="engine.phase.value"
-      :phase-progress="engine.phaseProgress.value"
-      :phase-label="engine.phaseLabel.value"
-      :time-remaining="engine.phaseTimeRemaining.value"
+      :phase="ePhase"
+      :phase-progress="ePhaseProgress"
+      :phase-label="ePhaseLabel"
+      :time-remaining="ePhaseTimeRemaining"
     />
 
     <!-- Phase indicators -->
     <div class="absolute bottom-28 flex gap-6 text-xs uppercase tracking-widest opacity-40">
-      <span :class="{ 'opacity-100 text-breath-secondary': engine.phase.value === 'inhale' }">Inhale</span>
-      <span v-if="pattern.hold > 0" :class="{ 'opacity-100 text-breath-secondary': engine.phase.value === 'hold' }">Hold</span>
-      <span :class="{ 'opacity-100 text-breath-secondary': engine.phase.value === 'exhale' }">Exhale</span>
-      <span v-if="pattern.holdAfterExhale > 0" :class="{ 'opacity-100 text-breath-secondary': engine.phase.value === 'holdAfterExhale' }">Hold</span>
+      <span :class="{ 'opacity-100 text-breath-secondary': ePhase === 'inhale' }">Inhale</span>
+      <span v-if="pattern.hold > 0" :class="{ 'opacity-100 text-breath-secondary': ePhase === 'hold' }">Hold</span>
+      <span :class="{ 'opacity-100 text-breath-secondary': ePhase === 'exhale' }">Exhale</span>
+      <span v-if="pattern.holdAfterExhale > 0" :class="{ 'opacity-100 text-breath-secondary': ePhase === 'holdAfterExhale' }">Hold</span>
     </div>
 
     <!-- Controls -->
     <div class="absolute bottom-10 flex gap-4">
       <button
-        v-if="engine.phase.value === 'idle'"
+        v-if="ePhase === 'idle'"
         @click="start"
         class="px-8 py-3 rounded-full bg-breath-primary text-white font-medium hover:bg-blue-600 transition-colors"
       >
@@ -54,11 +54,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { usePatternsStore } from "../stores/patterns.js";
 import { useSessionsStore } from "../stores/sessions.js";
-import { useBreathingEngine } from "../composables/useBreathingEngine.js";
+import { useBreathingEngine, type Phase } from "../composables/useBreathingEngine.js";
 import BreathCircle from "../components/BreathCircle.vue";
 
 const route = useRoute();
@@ -77,12 +77,23 @@ onMounted(() => {
 
 const pattern = computed(() => patternsStore.getPatternById(patternId));
 
-const engine = computed(() => {
-  if (!pattern.value) return null;
-  return useBreathingEngine(pattern.value);
-});
+const engine = ref<ReturnType<typeof useBreathingEngine> | null>(null);
 
-const totalElapsed = computed(() => engine.value?.totalElapsed.value ?? 0);
+watch(
+  pattern,
+  (p) => {
+    if (p) {
+      engine.value = useBreathingEngine(p);
+    }
+  },
+  { immediate: true }
+);
+
+const ePhase = computed<Phase>(() => (engine.value?.phase as any) ?? "idle");
+const ePhaseProgress = computed(() => (engine.value?.phaseProgress as any) ?? 0);
+const ePhaseLabel = computed(() => (engine.value?.phaseLabel as any) ?? "");
+const ePhaseTimeRemaining = computed(() => (engine.value?.phaseTimeRemaining as any) ?? 0);
+const totalElapsed = computed(() => (engine.value?.totalElapsed as any) ?? 0);
 
 function start() {
   engine.value?.start();
@@ -99,7 +110,7 @@ function togglePause() {
 }
 
 async function endSession() {
-  const duration = engine.value?.totalElapsed.value ?? 0;
+  const duration = (engine.value?.totalElapsed as any) ?? 0;
   engine.value?.stop();
 
   if (duration > 0) {

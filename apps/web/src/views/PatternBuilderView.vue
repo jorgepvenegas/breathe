@@ -60,10 +60,10 @@
   >
     <div class="text-center">
       <BreathCircle
-        :phase="previewEngine?.phase.value ?? 'idle'"
-        :phase-progress="previewEngine?.phaseProgress.value ?? 0"
-        :phase-label="previewEngine?.phaseLabel.value ?? ''"
-        :time-remaining="previewEngine?.phaseTimeRemaining.value ?? 0"
+        :phase="previewEngine?.phase ?? 'idle'"
+        :phase-progress="previewEngine?.phaseProgress ?? 0"
+        :phase-label="previewEngine?.phaseLabel ?? ''"
+        :time-remaining="previewEngine?.phaseTimeRemaining ?? 0"
       />
       <button
         @click="showPreview = false"
@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { usePatternsStore } from "../stores/patterns.js";
 import { useBreathingEngine } from "../composables/useBreathingEngine.js";
@@ -126,7 +126,7 @@ function preview() {
   previewEngine.value?.stop();
   previewEngine.value = useBreathingEngine(previewPattern);
   showPreview.value = true;
-  previewEngine.value.start();
+  previewEngine.value!.start();
 
   // Auto-stop after one full cycle
   const cycleDuration =
