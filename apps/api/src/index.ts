@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { auth } from "./lib/auth.js";
+import patterns from "./routes/patterns.js";
 
 const app = new Hono();
 
@@ -19,6 +20,8 @@ app.use(
 app.on(["POST", "GET"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
 });
+
+app.route("/patterns", patterns);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
