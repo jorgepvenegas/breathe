@@ -47,7 +47,7 @@ A monorepo keeps both frontend and backend in one repository with a shared `pack
 | Frontend | Vue 3 (Composition API), Vite, Pinia, Vue Router, Tailwind CSS |
 | Backend | Hono.js, Prisma ORM, PostgreSQL |
 | Shared | Zod, TypeScript |
-| Auth | JWT in httpOnly cookie, bcrypt for passwords, Google OAuth |
+| Auth | Better Auth (sessions, email/password, OAuth, Prisma adapter) |
 | Animation | CSS transitions driven by a JavaScript `BreathingEngine` composable |
 | Charts | Lightweight SVG bar chart (no heavy chart library) |
 | Testing | Vitest (unit + integration), Vue Test Utils, Playwright (e2e) |
@@ -57,17 +57,59 @@ A monorepo keeps both frontend and backend in one repository with a shared `pack
 ## 4. Data Model (Prisma)
 
 ```prisma
+// Better Auth tables (managed by Better Auth Prisma adapter)
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
-  passwordHash  String?   // null for OAuth-only users
-  provider      String?   // "google"
-  providerId    String?
+  emailVerified Boolean   @default(false)
+  image         String?
   createdAt     DateTime  @default(now())
-  sessions      BreathSession[]
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  breathSessions BreathSession[]
 }
 
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// App tables
 model BreathingPattern {
   id              String  @id @default(cuid())
   userId          String? // null = built-in preset; non-null = user-created
@@ -84,7 +126,7 @@ model BreathingPattern {
 model BreathSession {
   id          String   @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   patternId   String
   pattern     BreathingPattern @relation(fields: [patternId], references: [id])
   duration    Int      // total seconds actually completed
@@ -103,10 +145,8 @@ model BreathSession {
 ## 5. API Design (Hono Routes)
 
 ```
-POST /auth/register              → { email, password, name }
-POST /auth/login                 → { email, password }
-POST /auth/logout                → (clears cookie)
-GET  /auth/me                    → current user (protected)
+POST /api/auth/*                 → Better Auth routes (register, login, logout, OAuth callback, etc.)
+GET  /api/auth/session           → current session / user (protected)
 
 GET  /patterns                   → list all (built-ins + user's custom)
 POST /patterns                   → create custom pattern (protected)
@@ -119,9 +159,10 @@ GET  /sessions/stats             → daily/weekly aggregates (protected)
 
 ### Auth Details
 
-- JWT stored in an httpOnly cookie with `SameSite=lax` and `Secure` in production.
+- Better Auth is mounted at `/api/auth/*` via Hono middleware. It handles registration, login, logout, session management, and Google OAuth automatically.
+- The Prisma adapter maps Better Auth's tables (`user`, `session`, `account`, `verification`) to the database.
 - CORS configured for the frontend origin.
-- A middleware extracts the user from the JWT on protected routes.
+- Better Auth's session middleware populates `ctx.get("user")` on protected routes.
 
 ### Validation
 
@@ -149,8 +190,8 @@ All request and response bodies are validated with Zod schemas from `packages/ty
 ### Auth Flow
 
 - Registration and login forms accept email and password. A "Sign in with Google" button triggers OAuth.
-- JWT is stored in an httpOnly cookie with a 14-day expiry, refreshed on active use.
-- `GET /auth/me` returns `{ id, email, name }`, used by the Pinia auth store to hydrate user state on page load.
+- Better Auth manages session cookies automatically.
+- `GET /api/auth/session` returns the current session with user data, used by the Pinia auth store to hydrate user state on page load.
 - Unauthenticated users attempting to access protected routes are redirected to `/login`.
 
 ---
@@ -219,7 +260,7 @@ A **Preview** button opens a mini 1-cycle animation. A **Save** button stores th
 | Network failure on session save | Queue session data in `localStorage`, retry on next successful API call |
 | Tab/browser close during breathing | Save elapsed time + current phase to `sessionStorage`; offer "Resume?" on return within 5 minutes |
 | Invalid pattern input | Zod validation on both frontend and backend rejects negative or out-of-range durations |
-| OAuth email already has password account | Prompt user to link accounts or reject the OAuth sign-in |
+| OAuth email already has password account | Better Auth handles account linking automatically; no custom logic needed |
 | Phone locks during session | Accept slight timing drift; `setInterval`/`requestAnimationFrame` may pause in background |
 | User ends session early | Record `BreathSession.duration` as actual seconds breathed |
 
@@ -239,7 +280,7 @@ A **Preview** button opens a mini 1-cycle animation. A **Save** button stores th
 ## 12. Deployment
 
 - **Frontend:** Static build deployed to Vercel, Netlify, or Cloudflare Pages.
-- **Backend:** Hono deployed to Railway, Render, Fly.io, or Vercel Edge Functions.
+- **Backend:** Hono + Better Auth deployed to Railway, Render, Fly.io, or Vercel Edge Functions.
 - **Database:** Managed PostgreSQL (Railway, Supabase, Neon).
 
 ---
@@ -250,7 +291,7 @@ A **Preview** button opens a mini 1-cycle animation. A **Save** button stores th
 |----------|--------|-----------|
 | Monorepo vs. separate repos | Monorepo (pnpm workspaces) | Shared types prevent API drift; single repo is easier to manage at this scale |
 | Animation driver | JS composable + CSS transitions | Allows pause/resume and dynamic durations; pure CSS cannot handle custom patterns |
-| Auth methods | Email/password + Google OAuth | User requested both; Apple OAuth explicitly excluded |
+| Auth methods | Email/password + Google OAuth (via Better Auth) | User requested both; Apple OAuth explicitly excluded; Better Auth replaces custom JWT/bcrypt |
 | Session duration storage | Actual seconds, not pattern × cycles | Accurately records partial/early-stopped sessions |
 | Chart library | Lightweight SVG | Avoids heavy dependency; bar chart is simple enough to build inline |
 | Offline queue | localStorage for failed session saves | Simple fallback for network failures |
