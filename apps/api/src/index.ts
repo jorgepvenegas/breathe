@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { auth } from "./lib/auth.js";
 import patterns from "./routes/patterns.js";
+import sessions from "./routes/sessions.js";
 
 const app = new Hono();
 
@@ -22,6 +23,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
 });
 
 app.route("/patterns", patterns);
+app.route("/sessions", sessions);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
