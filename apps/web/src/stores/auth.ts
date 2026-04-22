@@ -1,0 +1,37 @@
+import { ref } from "vue";
+import { defineStore } from "pinia";
+import type { User } from "@breath/types";
+
+export const useAuthStore = defineStore("auth", () => {
+  const user = ref<User | null>(null);
+  const loading = ref(false);
+
+  async function fetchUser() {
+    loading.value = true;
+    try {
+      const res = await fetch("http://localhost:3001/api/auth/session", {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        user.value = data.user ?? null;
+      } else {
+        user.value = null;
+      }
+    } catch {
+      user.value = null;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function signOut() {
+    await fetch("http://localhost:3001/api/auth/sign-out", {
+      method: "POST",
+      credentials: "include",
+    });
+    user.value = null;
+  }
+
+  return { user, loading, fetchUser, signOut };
+});
