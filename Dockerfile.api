@@ -19,6 +19,9 @@ RUN pnpm install --frozen-lockfile
 # Copy full source
 COPY apps/api/ ./apps/api/
 
+# Generate Prisma client (needs schema + env for validation)
+RUN cd apps/api && pnpm prisma generate
+
 # Build the API and its workspace dependencies
 RUN pnpm turbo run build --filter=@breath/api
 
