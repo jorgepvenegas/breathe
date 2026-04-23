@@ -56,7 +56,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
-import { getCsrfToken, API_BASE } from "../lib/api.js";
+import { getCsrfToken } from "../lib/api.js";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -73,7 +73,7 @@ async function handleRegister() {
 
   try {
     const csrfToken = await getCsrfToken();
-    const res = await fetch(`${API_BASE}/api/auth/sign-up/email`, {
+    const res = await fetch("/api/auth/sign-up/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

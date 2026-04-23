@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import type { User } from "@breath/types";
-import { getCsrfToken, API_BASE } from "../lib/api.js";
+import { getCsrfToken } from "../lib/api.js";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
@@ -10,7 +10,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function fetchUser() {
     loading.value = true;
     try {
-      const res = await fetch(`${API_BASE}/api/auth/get-session`, {
+      const res = await fetch("/api/auth/get-session", {
         credentials: "include",
       });
       if (res.ok) {
@@ -29,7 +29,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function signOut() {
     try {
       const csrfToken = await getCsrfToken();
-      await fetch(`${API_BASE}/api/auth/sign-out`, {
+      await fetch("/api/auth/sign-out", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
