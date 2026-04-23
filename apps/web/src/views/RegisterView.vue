@@ -56,6 +56,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
+import { getCsrfToken } from "../lib/api.js";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -71,6 +72,7 @@ async function handleRegister() {
   error.value = "";
 
   try {
+    const csrfToken = await getCsrfToken();
     const res = await fetch("http://localhost:3001/api/auth/sign-up/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,6 +81,7 @@ async function handleRegister() {
         name: name.value,
         email: email.value,
         password: password.value,
+        csrfToken,
       }),
     });
 

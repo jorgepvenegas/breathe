@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import type { User } from "@breath/types";
+import { getCsrfToken } from "../lib/api.js";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
@@ -26,10 +27,17 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function signOut() {
-    await fetch("http://localhost:3001/api/auth/sign-out", {
-      method: "POST",
-      credentials: "include",
-    });
+    try {
+      const csrfToken = await getCsrfToken();
+      await fetch("http://localhost:3001/api/auth/sign-out", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ csrfToken }),
+      });
+    } catch {
+      // Ignore errors on sign-out
+    }
     user.value = null;
   }
 

@@ -64,6 +64,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
+import { getCsrfToken } from "../lib/api.js";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -78,11 +79,12 @@ async function handleLogin() {
   error.value = "";
 
   try {
+    const csrfToken = await getCsrfToken();
     const res = await fetch("http://localhost:3001/api/auth/sign-in/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ email: email.value, password: password.value }),
+      body: JSON.stringify({ email: email.value, password: password.value, csrfToken }),
     });
 
     if (!res.ok) {
