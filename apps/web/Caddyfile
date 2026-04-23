@@ -10,10 +10,17 @@
 	respond /health 200
 
 	# API routes → backend service
+	# Must match both exact paths (/patterns) and subpaths (/patterns/*)
 	handle /api/* {
 		reverse_proxy {$API_BACKEND_URL}
 	}
+	handle /patterns {
+		reverse_proxy {$API_BACKEND_URL}
+	}
 	handle /patterns/* {
+		reverse_proxy {$API_BACKEND_URL}
+	}
+	handle /sessions {
 		reverse_proxy {$API_BACKEND_URL}
 	}
 	handle /sessions/* {
