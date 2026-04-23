@@ -12,6 +12,7 @@
   "dependencies": {
     "@breath/types": "workspace:*",
     "pinia": "^2.1.0",
+    "serve": "^14.2.0",
     "vue": "^3.4.0",
     "vue-router": "^4.3.0"
   },
