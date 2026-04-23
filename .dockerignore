@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.db
+.env
+.turso-credentials
+.git/
+.worktrees/
+.superpowers/
+*.tsbuildinfo

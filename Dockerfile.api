@@ -1,0 +1,26 @@
+FROM node:20-slim
+
+# Enable pnpm via corepack
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+WORKDIR /app
+
+# Copy monorepo files first for better layer caching
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
+COPY packages/ ./packages/
+COPY apps/api/package.json ./apps/api/package.json
+
+# Install dependencies (monorepo-aware)
+RUN pnpm install --frozen-lockfile
+
+# Copy full source
+COPY apps/api/ ./apps/api/
+
+# Build the API and its workspace dependencies
+RUN pnpm turbo run build --filter=@breath/api
+
+# Set working directory to the API app
+WORKDIR /app/apps/api
+
+# Run migrations then start the server
+CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/index.js"]
