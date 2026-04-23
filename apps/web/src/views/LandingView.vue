@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+  <div class="h-full flex flex-col items-center justify-center px-4 text-center">
     <div class="w-24 h-24 rounded-full bg-breath-primary/20 flex items-center justify-center mb-8">
       <div class="w-16 h-16 rounded-full bg-breath-primary/40 animate-pulse" />
     </div>

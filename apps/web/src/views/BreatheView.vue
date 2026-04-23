@@ -1,5 +1,5 @@
 <template>
-  <div v-if="pattern" class="min-h-screen flex flex-col items-center justify-center px-4 relative">
+  <div v-if="pattern" class="h-full flex flex-col items-center justify-center px-4 relative">
     <!-- Header -->
     <div class="absolute top-6 text-center">
       <div class="text-lg font-semibold opacity-80">{{ pattern.name }}</div>
@@ -48,7 +48,7 @@
     </div>
   </div>
 
-  <div v-else class="min-h-screen flex items-center justify-center">
+  <div v-else class="h-full flex items-center justify-center">
     <p class="opacity-50">Pattern not found</p>
   </div>
 </template>

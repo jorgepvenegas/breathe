@@ -11,6 +11,9 @@ export function useBreathingEngine(pattern: BreathingPattern) {
 
   let timer: ReturnType<typeof setInterval> | null = null;
   let phaseStartTime = 0;
+  let sessionStartTime = 0;
+  let pausedDuration = 0;
+  let pauseStartTime = 0;
 
   const phaseDuration = computed(() => {
     switch (phase.value) {
@@ -71,14 +74,16 @@ export function useBreathingEngine(pattern: BreathingPattern) {
   function tick() {
     const now = Date.now();
     const delta = (now - phaseStartTime) / 1000;
-    phaseElapsed.value = Math.min(delta, phaseDuration.value);
-    totalElapsed.value += 1; // approximate, updated every second
+    const currentPhaseDuration = phaseDuration.value;
+    phaseElapsed.value = Math.min(delta, currentPhaseDuration);
+    totalElapsed.value = Math.floor((now - sessionStartTime) / 1000 - pausedDuration);
 
-    if (phaseElapsed.value >= phaseDuration.value) {
+    if (delta >= currentPhaseDuration) {
       const oldPhase = phase.value;
       phase.value = nextPhase();
-      phaseStartTime = now;
-      phaseElapsed.value = 0;
+      // Carry overshoot into the next phase so time doesn't drift
+      phaseStartTime += currentPhaseDuration * 1000;
+      phaseElapsed.value = (now - phaseStartTime) / 1000;
 
       if (oldPhase === "holdAfterExhale" || (oldPhase === "exhale" && pattern.holdAfterExhale === 0)) {
         cycleCount.value++;
@@ -90,6 +95,8 @@ export function useBreathingEngine(pattern: BreathingPattern) {
     if (timer) return;
     phase.value = "inhale";
     phaseStartTime = Date.now();
+    sessionStartTime = Date.now();
+    pausedDuration = 0;
     phaseElapsed.value = 0;
     totalElapsed.value = 0;
     cycleCount.value = 0;
@@ -100,11 +107,13 @@ export function useBreathingEngine(pattern: BreathingPattern) {
     if (timer) {
       clearInterval(timer);
       timer = null;
+      pauseStartTime = Date.now();
     }
   }
 
   function resume() {
     if (!timer && phase.value !== "idle") {
+      pausedDuration += (Date.now() - pauseStartTime) / 1000;
       phaseStartTime = Date.now() - phaseElapsed.value * 1000;
       timer = setInterval(tick, 100);
     }

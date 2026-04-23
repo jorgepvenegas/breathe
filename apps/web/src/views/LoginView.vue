@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center px-4">
+  <div class="h-full flex flex-col items-center justify-center px-4">
     <div class="w-full max-w-sm">
       <h1 class="text-2xl font-bold text-center mb-8">Sign In</h1>
 
