@@ -15,6 +15,9 @@ export const auth: Auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     },
   },
+  trustedOrigins: [
+    process.env.WEB_URL ?? "http://localhost:5173",
+  ],
   session: {
     expiresIn: 60 * 60 * 24 * 14, // 14 days
   },
