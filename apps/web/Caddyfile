@@ -1,0 +1,31 @@
+# Caddy reverse proxy for the breathing app frontend
+# Railway sets $PORT; we default to 3000 for local testing.
+#
+# Set API_BACKEND_URL in Railway service variables, e.g.:
+#   Private networking (zero egress): http://<backend-service>.railway.internal:3001
+#   Public domain:                    https://<backend-service>.up.railway.app
+
+:{$PORT:3000} {
+	# Health check for Railway
+	respond /health 200
+
+	# API routes → backend service
+	handle /api/* {
+		reverse_proxy {$API_BACKEND_URL}
+	}
+	handle /patterns/* {
+		reverse_proxy {$API_BACKEND_URL}
+	}
+	handle /sessions/* {
+		reverse_proxy {$API_BACKEND_URL}
+	}
+
+	# Frontend routes → Vite static build
+	handle {
+		root * dist
+		encode gzip
+		file_server
+		# Support Vue Router history mode (client-side routing)
+		try_files {path} /index.html
+	}
+}

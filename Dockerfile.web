@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:20-slim AS builder
 
 # Enable pnpm via corepack
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
@@ -19,11 +19,16 @@ COPY apps/web/ ./apps/web/
 # Build the web app and its workspace dependencies
 RUN pnpm turbo run build --filter=@breath/web
 
-# Set working directory to the web app
-WORKDIR /app/apps/web
+# Production stage with Caddy
+FROM caddy:2-alpine
 
-# Make env injection script executable
-RUN chmod +x inject-env.sh
+WORKDIR /app
 
-# Serve the static build with runtime env injection
-CMD ["./inject-env.sh"]
+# Copy built static files
+COPY --from=builder /app/apps/web/dist ./dist
+
+# Copy Caddyfile
+COPY apps/web/Caddyfile ./Caddyfile
+
+# Caddy runs on $PORT (set by Railway)
+CMD ["caddy", "run", "--config", "Caddyfile", "--adapter", "caddyfile"]

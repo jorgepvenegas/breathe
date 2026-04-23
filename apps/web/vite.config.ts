@@ -10,6 +10,14 @@ export default defineConfig({
         target: "http://localhost:3001",
         changeOrigin: true,
       },
+      "/patterns": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+      "/sessions": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
     },
   },
 });

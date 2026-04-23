@@ -1,7 +1,5 @@
-export const API_BASE =
-  (window as any).__ENV__?.VITE_API_URL ??
-  import.meta.env.VITE_API_URL ??
-  "http://localhost:3001";
+// Use relative paths — Caddy proxies /api/*, /patterns/*, /sessions/* to the backend
+const API_BASE = "";
 
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
