@@ -1,55 +1,57 @@
-import { z } from "zod";
+"use strict";
+exports.__esModule = true;
+exports.UserSchema = exports.LoginSchema = exports.RegisterSchema = exports.StatsRangeSchema = exports.SessionStatsSchema = exports.CreateSessionSchema = exports.BreathSessionSchema = exports.CreatePatternSchema = exports.BreathingPatternSchema = void 0;
+var zod_1 = require("zod");
 // --- BreathingPattern ---
-export const BreathingPatternSchema = z.object({
-    id: z.string(),
-    userId: z.string().nullable(),
-    name: z.string().min(1).max(100),
-    description: z.string().max(500).nullable().optional(),
-    inhale: z.number().int().min(1).max(15),
-    hold: z.number().int().min(0).max(15),
-    exhale: z.number().int().min(1).max(15),
-    holdAfterExhale: z.number().int().min(0).max(15).default(0),
-    createdAt: z.string().datetime().or(z.date()),
+exports.BreathingPatternSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    userId: zod_1.z.string().nullable(),
+    name: zod_1.z.string().min(1).max(100),
+    description: zod_1.z.string().max(500).nullable().optional(),
+    inhale: zod_1.z.number().int().min(1).max(15),
+    hold: zod_1.z.number().int().min(0).max(15),
+    exhale: zod_1.z.number().int().min(1).max(15),
+    holdAfterExhale: zod_1.z.number().int().min(0).max(15)["default"](0),
+    createdAt: zod_1.z.string().datetime().or(zod_1.z.date())
 });
-export const CreatePatternSchema = BreathingPatternSchema.omit({
+exports.CreatePatternSchema = exports.BreathingPatternSchema.omit({
     id: true,
     userId: true,
-    createdAt: true,
+    createdAt: true
 });
 // --- BreathSession ---
-export const BreathSessionSchema = z.object({
-    id: z.string(),
-    userId: z.string(),
-    patternId: z.string(),
-    duration: z.number().int().min(0),
-    completedAt: z.string().datetime().or(z.date()),
-    pattern: BreathingPatternSchema.optional(),
+exports.BreathSessionSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    userId: zod_1.z.string(),
+    patternId: zod_1.z.string(),
+    duration: zod_1.z.number().int().min(0),
+    completedAt: zod_1.z.string().datetime().or(zod_1.z.date()),
+    pattern: exports.BreathingPatternSchema.optional()
 });
-export const CreateSessionSchema = z.object({
-    patternId: z.string(),
-    duration: z.number().int().min(0),
+exports.CreateSessionSchema = zod_1.z.object({
+    patternId: zod_1.z.string(),
+    duration: zod_1.z.number().int().min(0)
 });
 // --- Stats ---
-export const SessionStatsSchema = z.object({
-    date: z.string(), // YYYY-MM-DD
-    totalDuration: z.number().int(),
-    sessionCount: z.number().int(),
+exports.SessionStatsSchema = zod_1.z.object({
+    date: zod_1.z.string(),
+    totalDuration: zod_1.z.number().int(),
+    sessionCount: zod_1.z.number().int()
 });
-export const StatsRangeSchema = z.enum(["week", "month", "all"]);
+exports.StatsRangeSchema = zod_1.z["enum"](["week", "month", "all"]);
 // --- Auth ---
-export const RegisterSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    name: z.string().min(1).max(100),
+exports.RegisterSchema = zod_1.z.object({
+    email: zod_1.z.string().email(),
+    password: zod_1.z.string().min(8),
+    name: zod_1.z.string().min(1).max(100)
 });
-export const LoginSchema = z.object({
-    email: z.string().email(),
-    password: z.string(),
+exports.LoginSchema = zod_1.z.object({
+    email: zod_1.z.string().email(),
+    password: zod_1.z.string()
 });
-export const UserSchema = z.object({
-    id: z.string(),
-    email: z.string(),
-    name: z.string().nullable(),
-    image: z.string().nullable().optional(),
+exports.UserSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    email: zod_1.z.string(),
+    name: zod_1.z.string().nullable(),
+    image: zod_1.z.string().nullable().optional()
 });
-//# sourceMappingURL=index.js.map
