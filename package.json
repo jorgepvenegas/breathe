@@ -4,6 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:api": "cd apps/api && pnpm dev",
+    "dev:web": "cd apps/web && pnpm dev",
     "lint": "turbo run lint",
     "db:generate": "cd apps/api && pnpm prisma generate",
     "db:migrate": "cd apps/api && pnpm prisma migrate dev",

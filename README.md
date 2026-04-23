@@ -111,14 +111,14 @@ Start both frontend and backend concurrently:
 pnpm dev
 ```
 
-Or individually:
+Or individually from the repo root:
 
 ```bash
 # Terminal 1 — API (http://localhost:3001)
-cd apps/api && pnpm dev
+pnpm dev:api
 
 # Terminal 2 — Web (http://localhost:5173)
-cd apps/web && pnpm dev
+pnpm dev:web
 ```
 
 ### Build for production
@@ -132,7 +132,9 @@ pnpm build
 | Command | Description |
 |---------|-------------|
 | `pnpm install` | Install all workspace dependencies |
-| `pnpm dev` | Start all dev servers (via Turbo) |
+| `pnpm dev` | Start all dev servers in parallel (via Turbo) |
+| `pnpm dev:api` | Start API server only |
+| `pnpm dev:web` | Start web frontend only |
 | `pnpm build` | Build all packages and apps |
 | `pnpm lint` | Type-check all packages and apps |
 | `pnpm db:generate` | Regenerate Prisma client |
