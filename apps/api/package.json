@@ -9,6 +9,9 @@
     "start": "node dist/index.js",
     "lint": "tsc --noEmit"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@breath/types": "workspace:*",
     "@hono/node-server": "^1.11.0",
