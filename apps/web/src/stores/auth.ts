@@ -9,7 +9,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function fetchUser() {
     loading.value = true;
     try {
-      const res = await fetch("http://localhost:3001/api/auth/session", {
+      const res = await fetch("http://localhost:3001/api/auth/get-session", {
         credentials: "include",
       });
       if (res.ok) {
