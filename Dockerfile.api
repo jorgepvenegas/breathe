@@ -1,5 +1,8 @@
 FROM node:20-slim
 
+# Install OpenSSL for Prisma
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 # Enable pnpm via corepack
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
@@ -22,5 +25,5 @@ RUN pnpm turbo run build --filter=@breath/api
 # Set working directory to the API app
 WORKDIR /app/apps/api
 
-# Run migrations then start the server
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/index.js"]
+# Start the server (migrations already applied to Turso via CLI)
+CMD ["node", "dist/index.js"]
