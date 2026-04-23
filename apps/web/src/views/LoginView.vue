@@ -45,7 +45,7 @@
         </div>
 
         <a
-          :href="`http://localhost:3001/api/auth/sign-in/google`"
+          :href="`${API_BASE}/api/auth/sign-in/google`"
           class="mt-4 w-full py-2.5 rounded-lg border border-white/15 text-center block hover:bg-white/5 transition-colors"
         >
           Sign in with Google
@@ -64,7 +64,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
-import { getCsrfToken } from "../lib/api.js";
+import { getCsrfToken, API_BASE } from "../lib/api.js";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -80,7 +80,7 @@ async function handleLogin() {
 
   try {
     const csrfToken = await getCsrfToken();
-    const res = await fetch("http://localhost:3001/api/auth/sign-in/email", {
+    const res = await fetch(`${API_BASE}/api/auth/sign-in/email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

@@ -22,5 +22,8 @@ RUN pnpm turbo run build --filter=@breath/web
 # Set working directory to the web app
 WORKDIR /app/apps/web
 
-# Serve the static build
-CMD ["sh", "-c", "npx serve dist -s -l ${PORT:-3000}"]
+# Make env injection script executable
+RUN chmod +x inject-env.sh
+
+# Serve the static build with runtime env injection
+CMD ["./inject-env.sh"]
