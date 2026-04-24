@@ -9,16 +9,22 @@
       Guided breathing exercises to help you focus, relax, and build a daily practice.
     </p>
 
-    <div class="flex gap-4">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <RouterLink
+        to="/try"
+        class="px-6 py-3 rounded-full bg-breath-primary text-white font-medium hover:bg-blue-600 transition-colors text-center"
+      >
+        Try it now
+      </RouterLink>
       <RouterLink
         to="/register"
-        class="px-6 py-3 rounded-full bg-breath-primary text-white font-medium hover:bg-blue-600 transition-colors"
+        class="px-6 py-3 rounded-full border border-white/15 hover:bg-white/5 transition-colors text-center"
       >
         Get Started
       </RouterLink>
       <RouterLink
         to="/login"
-        class="px-6 py-3 rounded-full border border-white/15 hover:bg-white/5 transition-colors"
+        class="px-6 py-3 rounded-full border border-white/15 hover:bg-white/5 transition-colors text-center"
       >
         Sign In
       </RouterLink>
