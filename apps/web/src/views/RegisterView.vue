@@ -56,10 +56,12 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
+import { useSessionsStore } from "../stores/sessions.js";
 import { getCsrfToken } from "../lib/api.js";
 
 const router = useRouter();
 const auth = useAuthStore();
+const sessionsStore = useSessionsStore();
 
 const name = ref("");
 const email = ref("");
@@ -91,6 +93,11 @@ async function handleRegister() {
     }
 
     await auth.fetchUser();
+    try {
+      await sessionsStore.flushAnonymousSession();
+    } catch {
+      // keep in localStorage for retry
+    }
     router.push("/dashboard");
   } catch (e: any) {
     error.value = e.message;
