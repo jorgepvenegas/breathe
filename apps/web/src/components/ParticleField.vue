@@ -33,7 +33,8 @@ const TRAIL_LENGTH = 6;
 
 function createParticles(width: number, height: number): Particle[] {
   const minR = 60;
-  const maxR = Math.min(width, height) * 0.4;
+  // Keep max radius well within canvas bounds even at 1.5x exhale multiplier
+  const maxR = Math.min(width, height) * 0.28;
 
   return Array.from({ length: PARTICLE_COUNT }, (_, i) => {
     const seed = i * 137.5; // golden angle for even distribution
@@ -113,12 +114,18 @@ function draw() {
       }
     }
 
+    // Fade particles near canvas edges to avoid hard clipping
+    const edgeX = Math.min(x, w - x) / w;
+    const edgeY = Math.min(y, h - y) / h;
+    const edgeFade = Math.min(1, Math.min(edgeX, edgeY) / 0.1);
+
     // Draw particle
     const px = x * dpr;
     const py = y * dpr;
     const pr = p.size * 2 * dpr;
     const gradient = ctx.createRadialGradient(px, py, 0, px, py, pr);
-    gradient.addColorStop(0, `hsla(${p.hue + params.hueShift}, 80%, 80%, ${p.opacity * params.opacityMult})`);
+    const finalOpacity = p.opacity * params.opacityMult * Math.max(0, edgeFade);
+    gradient.addColorStop(0, `hsla(${p.hue + params.hueShift}, 80%, 80%, ${finalOpacity})`);
     gradient.addColorStop(1, `hsla(${p.hue + params.hueShift}, 80%, 70%, 0)`);
 
     ctx.beginPath();

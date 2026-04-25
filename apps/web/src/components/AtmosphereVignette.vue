@@ -1,7 +1,7 @@
 <template>
   <div
     ref="vignetteRef"
-    class="absolute inset-0 pointer-events-none transition-all duration-700"
+    class="absolute inset-0 pointer-events-none"
     :style="{ background: gradient, opacity: currentOpacity }"
   />
 </template>
