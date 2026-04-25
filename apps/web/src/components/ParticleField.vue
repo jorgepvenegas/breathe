@@ -166,6 +166,9 @@ onUnmounted(() => {
 });
 
 watch(() => props.phase, () => {
-  // Phase change — particle params update naturally via getPhaseParams on next frame
+  // Clear trails on phase change to prevent leftover artifacts
+  for (const p of particles) {
+    p.trail = [];
+  }
 });
 </script>

@@ -36,10 +36,10 @@
     <!-- Breath circle -->
     <div
       ref="circleRef"
-      class="rounded-full flex flex-col items-center justify-center will-change-transform"
+      class="rounded-full flex flex-col items-center justify-center"
       :style="{
-        width: '140px',
-        height: '140px',
+        width: `${circleSize}px`,
+        height: `${circleSize}px`,
         background: currentBg,
         boxShadow: currentShadow,
       }"
@@ -69,10 +69,14 @@ const props = defineProps<{
   timeRemaining: number;
 }>();
 
+const MIN_SIZE = 140;
+const MAX_SIZE = 280;
+
 const containerRef = ref<HTMLDivElement | null>(null);
 const circleRef = ref<HTMLDivElement | null>(null);
 const labelRef = ref<HTMLDivElement | null>(null);
 const timerRef = ref<HTMLDivElement | null>(null);
+const circleSize = ref(MIN_SIZE);
 
 const circumference = 2 * Math.PI * 175;
 let ringIdCounter = 0;
@@ -111,21 +115,18 @@ const currentShadow = computed(() => {
   ].join(", ");
 });
 
-const MIN_SIZE = 140;
-const MAX_SIZE = 280;
-
-function getTargetScale(phase: Phase, progress: number): number {
+function getTargetSize(phase: Phase, progress: number): number {
   switch (phase) {
     case "inhale":
-      return 1 + ((MAX_SIZE - MIN_SIZE) / MIN_SIZE) * progress;
+      return MIN_SIZE + (MAX_SIZE - MIN_SIZE) * progress;
     case "hold":
-      return MAX_SIZE / MIN_SIZE;
+      return MAX_SIZE;
     case "exhale":
-      return MAX_SIZE / MIN_SIZE - ((MAX_SIZE - MIN_SIZE) / MIN_SIZE) * progress;
+      return MAX_SIZE - (MAX_SIZE - MIN_SIZE) * progress;
     case "holdAfterExhale":
-      return 1;
+      return MIN_SIZE;
     default:
-      return 1;
+      return MIN_SIZE;
   }
 }
 
@@ -150,15 +151,13 @@ watch(
     }
     lastPhase = newPhase;
 
-    // Animate circle to phase start scale
-    if (circleRef.value) {
-      const targetScale = getTargetScale(newPhase, 0);
-      gsap.to(circleRef.value, {
-        scale: newPhase === "inhale" ? 1 : targetScale,
-        duration: 0.4,
-        ease: "elastic.out(1, 0.5)",
-      });
-    }
+    // Animate circle to phase start size
+    gsap.to(circleSize, {
+      value: getTargetSize(newPhase, 0),
+      duration: 0.4,
+      ease: "elastic.out(1, 0.5)",
+      overwrite: true,
+    });
 
     // Label float
     if (labelRef.value) {
@@ -171,14 +170,13 @@ watch(
   }
 );
 
-// Smooth scale tracking during inhale/exhale progress
+// Smooth size tracking during inhale/exhale progress
 watch(
   () => props.phaseProgress,
   (progress) => {
-    if (!circleRef.value) return;
     if (props.phase !== "inhale" && props.phase !== "exhale") return;
-    gsap.to(circleRef.value, {
-      scale: getTargetScale(props.phase, progress),
+    gsap.to(circleSize, {
+      value: getTargetSize(props.phase, progress),
       duration: 0.15,
       ease: "none",
       overwrite: "auto",
@@ -207,7 +205,7 @@ function removeRing(id: number) {
 }
 
 onUnmounted(() => {
-  gsap.killTweensOf(circleRef.value);
+  gsap.killTweensOf(circleSize);
   gsap.killTweensOf(labelRef.value);
   gsap.killTweensOf(timerRef.value);
 });
