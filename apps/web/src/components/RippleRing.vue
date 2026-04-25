@@ -2,6 +2,7 @@
   <svg
     class="absolute w-full h-full pointer-events-none -rotate-90"
     viewBox="0 0 360 360"
+    overflow="visible"
   >
     <circle
       cx="180"
