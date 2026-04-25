@@ -1,5 +1,11 @@
 <template>
-  <div class="relative w-80 h-80 sm:w-96 sm:h-96 flex items-center justify-center">
+  <div ref="containerRef" class="relative w-80 h-80 sm:w-96 sm:h-96 flex items-center justify-center">
+    <!-- Atmosphere vignette -->
+    <AtmosphereVignette :phase="phase" :phase-progress="phaseProgress" />
+
+    <!-- Particle field -->
+    <ParticleField :phase="phase" :phase-progress="phaseProgress" />
+
     <!-- Progress ring -->
     <svg class="absolute w-full h-full -rotate-90" viewBox="0 0 360 360">
       <circle cx="180" cy="180" r="175" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4" />
@@ -17,20 +23,44 @@
       />
     </svg>
 
+    <!-- Ripple rings -->
+    <RippleRing
+      v-for="ring in activeRings"
+      :key="ring.id"
+      :color="ring.color"
+      :start-radius="ring.startRadius"
+      :delay="ring.delay"
+      @complete="removeRing(ring.id)"
+    />
+
     <!-- Breath circle -->
     <div
-      class="rounded-full flex flex-col items-center justify-center transition-all duration-300 ease-out"
-      :style="circleStyle"
+      ref="circleRef"
+      class="rounded-full flex flex-col items-center justify-center will-change-transform"
+      :style="{
+        width: '140px',
+        height: '140px',
+        background: currentBg,
+        boxShadow: currentShadow,
+      }"
     >
-      <div class="text-lg sm:text-xl font-semibold tracking-wider uppercase">{{ phaseLabel }}</div>
-      <div class="text-3xl sm:text-4xl font-light tabular-nums mt-1">{{ timeRemaining }}</div>
+      <div ref="labelRef" class="text-lg sm:text-xl font-semibold tracking-wider uppercase">
+        {{ phaseLabel }}
+      </div>
+      <div ref="timerRef" class="text-3xl sm:text-4xl font-light tabular-nums mt-1">
+        {{ timeRemaining }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch, onUnmounted } from "vue";
+import gsap from "gsap";
 import type { Phase } from "../composables/useBreathingEngine.js";
+import ParticleField from "./ParticleField.vue";
+import AtmosphereVignette from "./AtmosphereVignette.vue";
+import RippleRing from "./RippleRing.vue";
 
 const props = defineProps<{
   phase: Phase;
@@ -39,46 +69,146 @@ const props = defineProps<{
   timeRemaining: number;
 }>();
 
-const circumference = 2 * Math.PI * 175;
+const containerRef = ref<HTMLDivElement | null>(null);
+const circleRef = ref<HTMLDivElement | null>(null);
+const labelRef = ref<HTMLDivElement | null>(null);
+const timerRef = ref<HTMLDivElement | null>(null);
 
-const ringColor = computed(() => {
-  if (props.phase === "inhale") return "#60a5fa";
-  if (props.phase === "exhale") return "#34d399";
-  return "#a78bfa";
+const circumference = 2 * Math.PI * 175;
+let ringIdCounter = 0;
+
+interface ActiveRing {
+  id: number;
+  color: string;
+  startRadius: number;
+  delay: number;
+}
+
+const activeRings = ref<ActiveRing[]>([]);
+
+const colorMap: Record<Phase, { primary: string; glow: string; bg: string }> = {
+  idle: { primary: "#60a5fa", glow: "rgba(96,165,250,", bg: "rgba(96,165,250,0.5)" },
+  inhale: { primary: "#60a5fa", glow: "rgba(96,165,250,", bg: "rgba(96,165,250,0.5)" },
+  hold: { primary: "#a78bfa", glow: "rgba(167,139,250,", bg: "rgba(167,139,250,0.4)" },
+  exhale: { primary: "#34d399", glow: "rgba(52,211,153,", bg: "rgba(52,211,153,0.4)" },
+  holdAfterExhale: { primary: "#34d399", glow: "rgba(52,211,153,", bg: "rgba(52,211,153,0.3)" },
+};
+
+const ringColor = computed(() => colorMap[props.phase].primary);
+
+const currentBg = computed(() => {
+  const c = colorMap[props.phase];
+  return `radial-gradient(circle at 30% 30%, ${c.bg}, ${c.glow}0.2))`;
 });
 
-const circleStyle = computed(() => {
-  const minSize = 140;
-  const maxSize = 280;
-  let size = minSize;
+const currentShadow = computed(() => {
+  const c = colorMap[props.phase];
+  return [
+    `0 0 20px ${c.glow}0.6)`,
+    `0 0 60px ${c.glow}0.3)`,
+    `0 0 120px ${c.glow}0.15)`,
+    `inset 0 0 40px rgba(255,255,255,0.05)`,
+  ].join(", ");
+});
 
-  if (props.phase === "inhale") {
-    size = minSize + (maxSize - minSize) * props.phaseProgress;
-  } else if (props.phase === "hold") {
-    size = maxSize;
-  } else if (props.phase === "exhale") {
-    size = maxSize - (maxSize - minSize) * props.phaseProgress;
-  } else if (props.phase === "holdAfterExhale") {
-    size = minSize;
+const MIN_SIZE = 140;
+const MAX_SIZE = 280;
+
+function getTargetScale(phase: Phase, progress: number): number {
+  switch (phase) {
+    case "inhale":
+      return 1 + ((MAX_SIZE - MIN_SIZE) / MIN_SIZE) * progress;
+    case "hold":
+      return MAX_SIZE / MIN_SIZE;
+    case "exhale":
+      return MAX_SIZE / MIN_SIZE - ((MAX_SIZE - MIN_SIZE) / MIN_SIZE) * progress;
+    case "holdAfterExhale":
+      return 1;
+    default:
+      return 1;
   }
+}
 
-  let bg = "radial-gradient(circle at 30% 30%, rgba(96,165,250,0.5), rgba(59,130,246,0.2))";
-  if (props.phase === "exhale" || props.phase === "holdAfterExhale") {
-    bg = "radial-gradient(circle at 30% 30%, rgba(52,211,153,0.4), rgba(16,185,129,0.15))";
-  } else if (props.phase === "hold") {
-    bg = "radial-gradient(circle at 30% 30%, rgba(167,139,250,0.4), rgba(139,92,246,0.15))";
+function spawnRipples(phase: Phase) {
+  const color = colorMap[phase].primary;
+  const startRadius = phase === "inhale" ? MIN_SIZE / 2 : MAX_SIZE / 2;
+
+  activeRings.value.push({ id: ringIdCounter++, color, startRadius, delay: 0 });
+  setTimeout(() => {
+    activeRings.value.push({ id: ringIdCounter++, color, startRadius, delay: 0 });
+  }, 300);
+}
+
+let lastPhase: Phase = "idle";
+
+watch(
+  () => props.phase,
+  (newPhase) => {
+    // Ripples on inhale/exhale transitions
+    if (newPhase !== lastPhase && (newPhase === "inhale" || newPhase === "exhale")) {
+      spawnRipples(newPhase);
+    }
+    lastPhase = newPhase;
+
+    // Animate circle to phase start scale
+    if (circleRef.value) {
+      const targetScale = getTargetScale(newPhase, 0);
+      gsap.to(circleRef.value, {
+        scale: newPhase === "inhale" ? 1 : targetScale,
+        duration: 0.4,
+        ease: "elastic.out(1, 0.5)",
+      });
+    }
+
+    // Label float
+    if (labelRef.value) {
+      gsap.fromTo(
+        labelRef.value,
+        { y: -6, opacity: 0.5 },
+        { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }
+      );
+    }
   }
+);
 
-  const shadow =
-    props.phase === "hold"
-      ? `0 0 ${60 + Math.sin(Date.now() / 500) * 10}px rgba(167,139,250,0.3), inset 0 0 40px rgba(255,255,255,0.05)`
-      : `0 0 60px ${props.phase === "inhale" ? "rgba(96,165,250,0.25)" : "rgba(52,211,153,0.2)"}, inset 0 0 40px rgba(255,255,255,0.05)`;
+// Smooth scale tracking during inhale/exhale progress
+watch(
+  () => props.phaseProgress,
+  (progress) => {
+    if (!circleRef.value) return;
+    if (props.phase !== "inhale" && props.phase !== "exhale") return;
+    gsap.to(circleRef.value, {
+      scale: getTargetScale(props.phase, progress),
+      duration: 0.15,
+      ease: "none",
+      overwrite: "auto",
+    });
+  }
+);
 
-  return {
-    width: `${size}px`,
-    height: `${size}px`,
-    background: bg,
-    boxShadow: shadow,
-  };
+// Timer tick pop
+let lastTimer = -1;
+watch(
+  () => props.timeRemaining,
+  (val) => {
+    if (val !== lastTimer && timerRef.value) {
+      gsap.fromTo(
+        timerRef.value,
+        { scale: 1.18 },
+        { scale: 1, duration: 0.25, ease: "power2.out" }
+      );
+      lastTimer = val;
+    }
+  }
+);
+
+function removeRing(id: number) {
+  activeRings.value = activeRings.value.filter((r) => r.id !== id);
+}
+
+onUnmounted(() => {
+  gsap.killTweensOf(circleRef.value);
+  gsap.killTweensOf(labelRef.value);
+  gsap.killTweensOf(timerRef.value);
 });
 </script>
