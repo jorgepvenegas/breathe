@@ -10,7 +10,7 @@
             v-model="name"
             type="text"
             required
-            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-breath-primary focus:outline-none"
+            class="w-full px-4 py-2 rounded-lg bg-breath-input-bg border border-breath-input-border focus:border-breath-primary focus:outline-none"
           />
         </div>
         <div>
@@ -19,7 +19,7 @@
             v-model="email"
             type="email"
             required
-            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-breath-primary focus:outline-none"
+            class="w-full px-4 py-2 rounded-lg bg-breath-input-bg border border-breath-input-border focus:border-breath-primary focus:outline-none"
           />
         </div>
         <div>
@@ -29,7 +29,7 @@
             type="password"
             required
             minlength="8"
-            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-breath-primary focus:outline-none"
+            class="w-full px-4 py-2 rounded-lg bg-breath-input-bg border border-breath-input-border focus:border-breath-primary focus:outline-none"
           />
         </div>
 

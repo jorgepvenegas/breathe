@@ -10,7 +10,7 @@
       :max="max"
       :value="modelValue"
       @input="$emit('update:modelValue', Number(($event.target as HTMLInputElement).value))"
-      class="w-full h-2 rounded-lg appearance-none bg-white/10 accent-breath-primary cursor-pointer"
+      class="w-full h-2 rounded-lg appearance-none bg-breath-input-border accent-breath-primary cursor-pointer"
     />
   </div>
 </template>

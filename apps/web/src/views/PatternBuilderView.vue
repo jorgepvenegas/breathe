@@ -10,7 +10,7 @@
           type="text"
           required
           maxlength="100"
-          class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 focus:border-breath-primary focus:outline-none"
+          class="w-full px-4 py-2.5 rounded-lg bg-breath-input-bg border border-breath-input-border focus:border-breath-primary focus:outline-none"
           placeholder="e.g. My Custom Pattern"
         />
       </div>
@@ -26,7 +26,7 @@
           v-model="form.description"
           rows="2"
           maxlength="500"
-          class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 focus:border-breath-primary focus:outline-none resize-none"
+          class="w-full px-4 py-2.5 rounded-lg bg-breath-input-bg border border-breath-input-border focus:border-breath-primary focus:outline-none resize-none"
           placeholder="Optional description..."
         />
       </div>
@@ -37,7 +37,7 @@
         <button
           type="button"
           @click="preview"
-          class="flex-1 py-2.5 rounded-lg border border-white/15 hover:bg-white/5 transition-colors"
+          class="flex-1 py-2.5 rounded-lg border border-breath-border-dashed hover:bg-breath-surface-hover transition-colors"
         >
           Preview
         </button>
@@ -55,7 +55,7 @@
   <!-- Preview modal -->
   <div
     v-if="showPreview"
-    class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50"
     @click.self="showPreview = false"
   >
     <div class="text-center">
@@ -67,7 +67,7 @@
       />
       <button
         @click="showPreview = false"
-        class="mt-8 px-6 py-2 rounded-full border border-white/15 hover:bg-white/5 transition-colors"
+        class="mt-8 px-6 py-2 rounded-full border border-breath-border-dashed hover:bg-breath-surface-hover transition-colors"
       >
         Close Preview
       </button>
