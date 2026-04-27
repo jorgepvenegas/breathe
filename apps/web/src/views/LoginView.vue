@@ -10,7 +10,7 @@
             v-model="email"
             type="email"
             required
-            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-breath-primary focus:outline-none"
+            class="w-full px-4 py-2 rounded-lg bg-breath-input-bg border border-breath-input-border focus:border-breath-primary focus:outline-none"
           />
         </div>
         <div>
@@ -19,7 +19,7 @@
             v-model="password"
             type="password"
             required
-            class="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-breath-primary focus:outline-none"
+            class="w-full px-4 py-2 rounded-lg bg-breath-input-bg border border-breath-input-border focus:border-breath-primary focus:outline-none"
           />
         </div>
 
@@ -37,16 +37,16 @@
       <div class="mt-6">
         <div class="relative">
           <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-white/10" />
+            <div class="w-full border-t border-breath-input-border" />
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-breath-bg opacity-50">or</span>
+            <span class="px-2 bg-breath-bg text-breath-text opacity-50">or</span>
           </div>
         </div>
 
         <a
           href="/api/auth/sign-in/google"
-          class="mt-4 w-full py-2.5 rounded-lg border border-white/15 text-center block hover:bg-white/5 transition-colors"
+          class="mt-4 w-full py-2.5 rounded-lg border border-breath-border-dashed text-center block hover:bg-breath-surface-hover transition-colors"
         >
           Sign in with Google
         </a>

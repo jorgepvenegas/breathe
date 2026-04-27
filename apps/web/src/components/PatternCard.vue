@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-breath-surface border border-breath-border rounded-2xl p-5 cursor-pointer hover:bg-white/[0.06] transition-colors relative"
+    class="bg-breath-surface border border-breath-border rounded-2xl p-5 cursor-pointer hover:bg-breath-surface-hover transition-colors relative"
     @click="$emit('start', pattern.id)"
   >
     <div

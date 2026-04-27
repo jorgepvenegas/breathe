@@ -7,7 +7,7 @@
       <div class="flex gap-4 justify-center">
         <button
           @click="startOver"
-          class="px-6 py-2.5 rounded-full border border-white/15 hover:bg-white/5 transition-colors"
+          class="px-6 py-2.5 rounded-full border border-breath-border-dashed hover:bg-breath-surface-hover transition-colors"
         >
           Start Over
         </button>
@@ -59,7 +59,7 @@
       <template v-else>
         <button
           @click="togglePause"
-          class="px-6 py-2.5 rounded-full border border-white/15 hover:bg-white/5 transition-colors"
+          class="px-6 py-2.5 rounded-full border border-breath-border-dashed hover:bg-breath-surface-hover transition-colors"
         >
           {{ isPaused ? "Resume" : "Pause" }}
         </button>

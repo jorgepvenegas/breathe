@@ -12,7 +12,7 @@
           'px-4 py-1.5 rounded-full text-sm transition-colors',
           range === r
             ? 'bg-breath-primary text-white'
-            : 'bg-white/5 border border-white/10 hover:bg-white/10',
+            : 'bg-breath-surface border border-breath-input-border hover:bg-breath-surface-hover',
         ]"
       >
         {{ r === "all" ? "All Time" : r === "week" ? "This Week" : "This Month" }}
@@ -38,7 +38,7 @@
       <div
         v-for="session in sessionsStore.sessions"
         :key="session.id"
-        class="flex justify-between items-center px-5 py-3 border-b border-white/[0.04] last:border-b-0"
+        class="flex justify-between items-center px-5 py-3 border-b border-breath-border last:border-b-0"
       >
         <div>
           <div class="font-medium">{{ session.pattern?.name ?? "Unknown" }}</div>

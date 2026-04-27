@@ -20,7 +20,7 @@
         :x="bar.x + bar.width / 2"
         :y="height - 4"
         text-anchor="middle"
-        fill="rgba(255,255,255,0.4)"
+        fill="var(--breath-text-muted)"
         font-size="10"
       >
         {{ bar.label }}

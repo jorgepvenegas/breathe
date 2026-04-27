@@ -16,7 +16,7 @@
       />
       <RouterLink
         to="/patterns/new"
-        class="flex items-center justify-center gap-2 bg-breath-surface border border-dashed border-white/15 rounded-2xl p-5 opacity-60 hover:opacity-100 hover:bg-white/[0.06] transition-all"
+        class="flex items-center justify-center gap-2 bg-breath-surface border border-dashed border-breath-border-dashed rounded-2xl p-5 opacity-60 hover:opacity-100 hover:bg-breath-surface-hover transition-all"
       >
         <span class="text-lg">+</span>
         <span class="text-sm">Create Custom Pattern</span>
@@ -28,7 +28,7 @@
       <div
         v-for="session in recentSessions"
         :key="session.id"
-        class="flex justify-between items-center px-5 py-3 border-b border-white/[0.04] last:border-b-0"
+        class="flex justify-between items-center px-5 py-3 border-b border-breath-border last:border-b-0"
       >
         <div>
           <div class="font-medium">{{ session.pattern?.name ?? "Unknown" }}</div>

@@ -8,7 +8,7 @@
 
     <!-- Progress ring -->
     <svg class="absolute w-full h-full -rotate-90" viewBox="0 0 360 360">
-      <circle cx="180" cy="180" r="175" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4" />
+      <circle cx="180" cy="180" r="175" fill="none" stroke="var(--breath-ring-stroke)" stroke-width="4" />
       <circle
         cx="180"
         cy="180"
@@ -111,7 +111,7 @@ const currentShadow = computed(() => {
     `0 0 20px ${c.glow}0.6)`,
     `0 0 60px ${c.glow}0.3)`,
     `0 0 120px ${c.glow}0.15)`,
-    `inset 0 0 40px rgba(255,255,255,0.05)`,
+    `inset 0 0 40px var(--breath-ring-stroke)`,
   ].join(", ");
 });
 
