@@ -1,4 +1,4 @@
-# Breath
+# Breathe
 
 A guided breathing web application with animated visual feedback, customizable breathing patterns, session tracking, and user authentication.
 
